@@ -1,5 +1,4 @@
 
-
 import pygame
 import time
 
@@ -23,8 +22,6 @@ GOLD = (218, 165, 32)
 PINK = (255, 192, 203)
 AQUA = (0, 255, 255)
 GRAY = (100, 100, 100)
-
-
 
 
 crashed = False
@@ -82,22 +79,17 @@ def update_lives():
 
 class PacMan(pygame.sprite.Sprite):
     def __init__(self, x, y):
-        # Call the parent's constructor
         super().__init__()
 
-        # Set the width and height of Pac-Man
         self.image = pygame.image.load("pacman.png").convert_alpha()
 
-        # Make our top-left corner the passed-in location
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
 
-        # Set speed vector.
         self.move_x = 0
         self.move_y = 0
 
-        # Set collision sprites
         self.walls = None
         self.pellets = None
         self.power_pellets = None
@@ -120,7 +112,6 @@ class PacMan(pygame.sprite.Sprite):
         global lives
         global game_over
 
-        # Move left/right
         self.rect.x += self.move_x
 
         if self.rect.x == 0 and self.rect.y == 225 and self.move_x < 0:
@@ -173,3 +164,139 @@ class PacMan(pygame.sprite.Sprite):
 
         if len(pellet_list) == 0:
             self.win = True
+
+
+class Ghost(pygame.sprite.Sprite):
+    def __init__(self, x, y, color, name):
+        super().__init__()
+        self.name = name
+
+        self.image = pygame.Surface([25, 25])
+        self.image.fill(color)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+        self.move_x = 0
+        self.move_y = 0
+        self.walls = None
+        self.friends = None
+
+        self.moveUp = True
+        self.moveDown = True
+        self.moveLeft = True
+        self.moveRight = True
+
+    def can_move(self, direction):
+        if direction == 0:
+            test = self.rect.move((1, 0))
+        elif direction == 1:
+            test = self.rect.move((-1, 0))
+        elif direction == 2:
+            test = self.rect.move((0, 1))
+        elif direction == 3:
+            test = self.rect.move((0, -1))
+
+        for wall in self.walls:
+            if wall.rect.colliderect(test):
+                return False
+        return True
+
+    def change_speed(self):
+        priority = ["", "", "", ""]
+        x_disp = pacman.rect.x - self.rect.x
+        y_disp = pacman.rect.y - self.rect.y
+
+        if abs(x_disp) > abs(y_disp):
+            if x_disp >= 0:
+                priority[0] = "right"
+                priority[2] = "left"
+            elif x_disp < 0:
+                priority[0] = "left"
+                priority[2] = "right"
+
+            if y_disp >= 0:
+                priority[1] = "down"
+                priority[3] = "up"
+            elif y_disp < 0:
+                priority[1] = "up"
+                priority[3] = "down"
+        elif abs(y_disp) > abs(x_disp):
+            if y_disp >= 0:
+                priority[0] = "down"
+                priority[2] = "up"
+            elif y_disp < 0:
+                priority[0] = "up"
+                priority[2] = "down"
+
+            if x_disp >= 0:
+                priority[1] = "right"
+                priority[3] = "left"
+            elif x_disp < 0:
+                priority[1] = "left"
+                priority[3] = "right"
+
+        """
+        if blue:
+            priority = priority[::-1]
+        """
+
+        for direction in priority:
+            if direction == "right":
+                if self.can_move(0):
+                    self.move_x = 1
+                    break
+            elif direction == "left":
+                if self.can_move(1):
+                    self.move_x = -1
+                    break
+            elif direction == "down":
+                if self.can_move(2):
+                    self.move_y = 1
+                    break
+            elif direction == "up":
+                if self.can_move(3):
+                    self.move_y = -1
+                    break
+
+    def update(self):
+        """ Update the ghost position. """
+        self.rect.x += self.move_x
+
+        if self.rect.x == 0 and self.rect.y == 225 and self.move_x < 0:
+            self.rect.x = 500
+        if self.rect.x == 500 and self.rect.y == 225 and self.move_x > 0:
+            self.rect.x = 0
+
+        block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+        for block in block_hit_list:
+            if self.move_x >= 0:
+                self.rect.right = block.rect.left
+            elif self.move_x < 0:
+                self.rect.left = block.rect.right
+        ghost_hit_list = pygame.sprite.spritecollide(self, self.friends, False)
+        for friend in ghost_hit_list:
+            if self.move_x >= 0:
+                self.rect.right = friend.rect.left
+            elif self.move_x < 0:
+                self.rect.left = friend.rect.right
+            self.move_x *= -1
+
+        self.rect.y += self.move_y
+
+        block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+        for block in block_hit_list:
+            if self.move_y >= 0:
+                self.rect.bottom = block.rect.top
+            elif self.move_y < 0:
+                self.rect.top = block.rect.bottom
+        ghost_hit_list = pygame.sprite.spritecollide(self, self.friends, False)
+        for friend in ghost_hit_list:
+            if self.move_y >= 0:
+                self.rect.bottom = friend.rect.top
+            elif self.move_y < 0:
+                self.rect.top = friend.rect.bottom
+            self.move_y *= -1
+
+
