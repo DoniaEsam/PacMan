@@ -298,5 +298,57 @@ class Ghost(pygame.sprite.Sprite):
             elif self.move_y < 0:
                 self.rect.top = friend.rect.bottom
             self.move_y *= -1
+            
+            
+class Wall(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, color):
+        super().__init__()
+        self.image = pygame.Surface([width, height])
+        self.image.fill(color)
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
+        
+class Pellet(pygame.sprite.Sprite):
+    def __init__(self, position, radius):
+        super().__init__()
+        self.image = pygame.Surface([radius, radius])
+        self.image.fill(WHITE)
+        self.rect = pygame.Rect(position[0]-10, position[1]-10, 5, 5)
+        
+class Button:
+    def __init__(self, text, x, y):
+        self.start_game = False
+        self.crashed = False
+        self.text = text
+        my_font = pygame.font.SysFont("broadway", 18)
+        my_text = my_font.render(text, True, RED)
+        screen.blit(my_text, (x, y))
+        text_rect = my_text.get_rect()
+        self.rect = pygame.Rect(x-3, y-3, text_rect.width+6, text_rect.height+6)
+        pygame.draw.rect(screen, WHITE, self.rect, 0)
+        pygame.draw.rect(screen, YELLOW, self.rect, 3)
+        screen.blit(my_text, (x, y))
 
+    def get_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            self.on_click(event)
+
+    def on_click(self, event):
+        global start_game
+        global game_over
+        global restart
+
+        if self.rect.collidepoint(event.pos):
+            if self.text == "START":
+                beginning_channel.play(beginning)
+                start_game = True
+            elif self.text == "RESTART":
+                reset()
+                restart = True
+                start_game = True
+                game_over = False
+            else:
+                quit()
+                
 
