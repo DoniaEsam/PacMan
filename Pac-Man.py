@@ -80,3 +80,96 @@ def update_lives():
         x += 30
 
 
+class PacMan(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        # Call the parent's constructor
+        super().__init__()
+
+        # Set the width and height of Pac-Man
+        self.image = pygame.image.load("pacman.png").convert_alpha()
+
+        # Make our top-left corner the passed-in location
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
+
+        # Set speed vector.
+        self.move_x = 0
+        self.move_y = 0
+
+        # Set collision sprites
+        self.walls = None
+        self.pellets = None
+        self.power_pellets = None
+        self.ghosts = None
+
+        self.score = 0
+        self.win = False
+
+    def change_speed(self, x, y):
+        if not hit:
+            self.move_x += x
+            self.move_y += y
+        else:
+            self.move_x = 0
+            self.move_y = 0
+
+    def update(self):
+        global hit
+        global blue
+        global lives
+        global game_over
+
+        # Move left/right
+        self.rect.x += self.move_x
+
+        if self.rect.x == 0 and self.rect.y == 225 and self.move_x < 0:
+            self.rect.x = 500
+
+        if self.rect.x == 500 and self.rect.y == 225 and self.move_x > 0:
+            self.rect.x = 0
+
+        block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+        for block in block_hit_list:
+            if self.move_x > 0:
+                self.rect.right = block.rect.left
+            else:
+                self.rect.left = block.rect.right
+
+        self.rect.y += self.move_y
+
+        block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+        for block in block_hit_list:
+
+            if self.move_y > 0:
+                self.rect.bottom = block.rect.top
+            else:
+                self.rect.top = block.rect.bottom
+
+        pellet_hit_list = pygame.sprite.spritecollide(self, self.pellets, False)
+        for pellet in pellet_hit_list:
+            self.score += 10
+            update_score(self.score)
+            all_sprite_list.remove(pellet)
+            pellet_list.remove(pellet)
+            self.pellets.remove(pellet)
+
+        power_pellet_hit_list = pygame.sprite.spritecollide(self, self.power_pellets, False)
+        for power_pellet in power_pellet_hit_list:
+            self.score += 50
+            update_score(self.score)
+            all_sprite_list.remove(power_pellet)
+            power_pellet_list.remove(power_pellet)
+            self.power_pellets.remove(power_pellet)
+            blue = True
+
+        ghost_hit_list = pygame.sprite.spritecollide(self, self.ghosts, False)
+        if len(ghost_hit_list) != 0:
+            hit = True
+            lives -= 1
+            if lives <= 0:
+                all_sprite_list.remove(pacman)
+                game_over = True
+
+        if len(pellet_list) == 0:
+            self.win = True
