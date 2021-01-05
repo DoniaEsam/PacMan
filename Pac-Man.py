@@ -1,7 +1,5 @@
-
 import pygame
 import time
-
 
 pygame.init()
 size = (725, 525)
@@ -22,6 +20,9 @@ GOLD = (218, 165, 32)
 PINK = (255, 192, 203)
 AQUA = (0, 255, 255)
 GRAY = (100, 100, 100)
+
+
+
 
 
 crashed = False
@@ -77,19 +78,25 @@ def update_lives():
         x += 30
 
 
+
 class PacMan(pygame.sprite.Sprite):
     def __init__(self, x, y):
+        # Call the parent's constructor
         super().__init__()
 
+        
         self.image = pygame.image.load("pacman.png").convert_alpha()
 
+        
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
 
+       
         self.move_x = 0
         self.move_y = 0
 
+        
         self.walls = None
         self.pellets = None
         self.power_pellets = None
@@ -99,6 +106,7 @@ class PacMan(pygame.sprite.Sprite):
         self.win = False
 
     def change_speed(self, x, y):
+        
         if not hit:
             self.move_x += x
             self.move_y += y
@@ -112,14 +120,17 @@ class PacMan(pygame.sprite.Sprite):
         global lives
         global game_over
 
+       
         self.rect.x += self.move_x
 
+        
         if self.rect.x == 0 and self.rect.y == 225 and self.move_x < 0:
             self.rect.x = 500
 
         if self.rect.x == 500 and self.rect.y == 225 and self.move_x > 0:
             self.rect.x = 0
 
+       
         block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
         for block in block_hit_list:
             if self.move_x > 0:
@@ -129,14 +140,17 @@ class PacMan(pygame.sprite.Sprite):
 
         self.rect.y += self.move_y
 
+       
         block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
         for block in block_hit_list:
 
+            
             if self.move_y > 0:
                 self.rect.bottom = block.rect.top
             else:
                 self.rect.top = block.rect.bottom
 
+      
         pellet_hit_list = pygame.sprite.spritecollide(self, self.pellets, False)
         for pellet in pellet_hit_list:
             self.score += 10
@@ -171,6 +185,7 @@ class Ghost(pygame.sprite.Sprite):
         super().__init__()
         self.name = name
 
+        
         self.image = pygame.Surface([25, 25])
         self.image.fill(color)
 
@@ -237,10 +252,7 @@ class Ghost(pygame.sprite.Sprite):
                 priority[1] = "left"
                 priority[3] = "right"
 
-        """
-        if blue:
-            priority = priority[::-1]
-        """
+       
 
         for direction in priority:
             if direction == "right":
@@ -261,13 +273,15 @@ class Ghost(pygame.sprite.Sprite):
                     break
 
     def update(self):
-        """ Update the ghost position. """
+        
+        
         self.rect.x += self.move_x
 
         if self.rect.x == 0 and self.rect.y == 225 and self.move_x < 0:
             self.rect.x = 500
         if self.rect.x == 500 and self.rect.y == 225 and self.move_x > 0:
             self.rect.x = 0
+
 
         block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
         for block in block_hit_list:
@@ -283,6 +297,7 @@ class Ghost(pygame.sprite.Sprite):
                 self.rect.left = friend.rect.right
             self.move_x *= -1
 
+        
         self.rect.y += self.move_y
 
         block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
@@ -298,24 +313,35 @@ class Ghost(pygame.sprite.Sprite):
             elif self.move_y < 0:
                 self.rect.top = friend.rect.bottom
             self.move_y *= -1
-            
-            
+
+
 class Wall(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, color):
+        """ Constructor for the wall that the player can run into. """
+        
         super().__init__()
+
+        
         self.image = pygame.Surface([width, height])
         self.image.fill(color)
+
+        
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
-        
+
+
 class Pellet(pygame.sprite.Sprite):
     def __init__(self, position, radius):
+        """ Constructor for the wall that the player can run into. """
+        
         super().__init__()
+
         self.image = pygame.Surface([radius, radius])
         self.image.fill(WHITE)
         self.rect = pygame.Rect(position[0]-10, position[1]-10, 5, 5)
-        
+
+
 class Button:
     def __init__(self, text, x, y):
         self.start_game = False
@@ -341,7 +367,6 @@ class Button:
 
         if self.rect.collidepoint(event.pos):
             if self.text == "START":
-                beginning_channel.play(beginning)
                 start_game = True
             elif self.text == "RESTART":
                 reset()
@@ -350,8 +375,10 @@ class Button:
                 game_over = False
             else:
                 quit()
-                
-                all_sprite_list = None
+
+
+
+all_sprite_list = None
 pacman = None
 blinky = None
 pinky = None
@@ -361,6 +388,7 @@ ghost_list = None
 wall_list = None
 pellet_list = None
 power_pellet_list = None
+
 
 
 
@@ -380,14 +408,14 @@ def reset():
     global clyde
 
     lives = 3
-    # ALL sprites used for the game
+    
     all_sprite_list = pygame.sprite.Group()
 
-    # PacMan
+   
     pacman = PacMan(250, 375)
     all_sprite_list.add(pacman)
 
-    # creating the pellets of the game
+    
     pellet_list = pygame.sprite.Group()
     pellets_positions = [[62, 37], [87, 37], [112, 37], [137, 37], [162, 37], [187, 37], [212, 37], [237, 37],
                          [287, 37],
@@ -412,7 +440,7 @@ def reset():
                          [462, 462], [62, 487], [87, 487], [112, 487], [137, 487], [162, 487], [187, 487], [212, 487],
                          [237, 487], [262, 487], [287, 487], [312, 487], [337, 487], [362, 487], [387, 487], [412, 487],
                          [437, 487], [462, 487]]
-    # pellets_positions = [[237, 387]]
+    
     pellets_positions.remove([62, 37])
     pellets_positions.remove([462, 37])
     pellets_positions.remove([62, 487])
@@ -501,7 +529,7 @@ def reset():
     clyde.walls = wall_list.copy()
     clyde.walls.add(Wall(225, 225, 25, 25, BLUE))
 
-# Reloads the current game with one less life
+
 def start_again():
     global pacman
     global blinky
@@ -599,7 +627,7 @@ def game_over_screen():
     restart_button = Button("RESTART", 320, 425)
 
 
-""" GAME LOOP """
+
 reset()
 title_screen()
 while not crashed:
@@ -637,6 +665,7 @@ while not crashed:
                 print("DOWN")
                 pacman.change_speed(0, -1)
 
+    
     if start_game:
         for ghost in ghost_list:
             ghost.change_speed()
@@ -644,10 +673,6 @@ while not crashed:
         screen.fill(BLACK)
         all_sprite_list.draw(screen)
 
-        if beginning_channel.get_busy():
-            my_font = pygame.font.SysFont("broadway", 18)
-            my_text = my_font.render("READY!", True, YELLOW, BLACK)
-            screen.blit(my_text, (230, 275))
 
         update_score(pacman.score)
         update_clock(int(time.time() - start_time))
@@ -657,8 +682,6 @@ while not crashed:
 
     if hit:
         hit = False
-        while death_channel.get_busy():
-            time.sleep(1)
         start_again()
 
         all_sprite_list.update()
@@ -667,17 +690,15 @@ while not crashed:
         update_score(pacman.score)
         update_clock(int(time.time() - start_time))
 
-   
+    # PacMan was eaten by one of the ghosts
     if game_over:
         start_game = False
         screen.fill(BLACK)
-        while death_channel.get_busy():
-            time.sleep(1)
         game_over_screen()
         for event in pygame.event.get():
             restart_button.get_event(event)
 
-    
+   
     if pacman.win:
         start_game = False
         for ghost in ghost_list:
@@ -698,21 +719,11 @@ while not crashed:
     if restart:
         restart = False
         pygame.display.flip()
-       
+        
 
     pygame.display.flip()
 
-    while title_channel.get_busy():
-        time.sleep(1)
-        start_time = time.time()
-    while beginning_channel.get_busy():
-        time.sleep(1)
-        start_time = time.time()
+   
+       
 
     clock.tick(60)
-
-                
-
-
-                
-
